@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - ClinicCare</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .demo-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .main-content {
+            margin-top: 60px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Demo Navigation -->
+    <div class="demo-nav">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center py-2">
+                <div class="text-white small">
+                    <i class="bi bi-eye me-1"></i>Demo Mode - Login Page
+                </div>
+                <div class="btn-group btn-group-sm">
+                    <a href="index.html" class="btn btn-outline-light btn-sm">Home</a>
+                    <a href="dashboard.html" class="btn btn-outline-light btn-sm">Dashboard</a>
+                    <a href="patients.html" class="btn btn-outline-light btn-sm">Patients</a>
+                    <a href="analytics.html" class="btn btn-outline-light btn-sm">Analytics</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="container-fluid h-100">
+            <div class="row justify-content-center align-items-center min-vh-100">
+                <div class="col-md-6 col-lg-4">
+                    <div class="card shadow-lg border-0">
+                        <div class="card-header bg-primary text-white text-center py-4">
+                            <h2 class="mb-0">
+                                <i class="bi bi-heart-pulse me-2"></i>ClinicCare
+                            </h2>
+                            <p class="mb-0">Sign in to your account</p>
+                        </div>
+                        <div class="card-body p-4">
+                            <form id="loginForm">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="password" name="password" required>
+                                </div>
+                                
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="remember_me">
+                                    <label class="form-check-label" for="remember_me">Remember Me</label>
+                                </div>
+                                
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary btn-lg">Sign In</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="card-footer text-center text-muted py-3">
+                            <small>
+                                <strong>Demo Accounts:</strong><br>
+                                <span class="text-primary">Admin:</span> admin@cliniccare.com / admin123<br>
+                                <span class="text-success">Doctor:</span> doctor@cliniccare.com / doctor123
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Quick Login Buttons -->
+                    <div class="text-center mt-3">
+                        <div class="btn-group">
+                            <button class="btn btn-outline-light btn-sm" onclick="fillCredentials('doctor')">
+                                <i class="bi bi-person-check me-1"></i>Login as Doctor
+                            </button>
+                            <button class="btn btn-outline-light btn-sm" onclick="fillCredentials('admin')">
+                                <i class="bi bi-shield-check me-1"></i>Login as Admin
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function fillCredentials(role) {
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            
+            if (role === 'doctor') {
+                emailInput.value = 'doctor@cliniccare.com';
+                passwordInput.value = 'doctor123';
+            } else if (role === 'admin') {
+                emailInput.value = 'admin@cliniccare.com';
+                passwordInput.value = 'admin123';
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Simulate login validation
+            if ((email === 'doctor@cliniccare.com' && password === 'doctor123') ||
+                (email === 'admin@cliniccare.com' && password === 'admin123')) {
+                
+                // Show success message
+                const successAlert = document.createElement('div');
+                successAlert.className = 'alert alert-success mt-3';
+                successAlert.innerHTML = '<i class="bi bi-check-circle me-2"></i>Login successful! Redirecting to dashboard...';
+                
+                document.querySelector('.card-body').appendChild(successAlert);
+                
+                // Redirect to dashboard after 2 seconds
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 2000);
+                
+            } else {
+                // Show error message
+                const errorAlert = document.createElement('div');
+                errorAlert.className = 'alert alert-danger mt-3';
+                errorAlert.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Invalid email or password. Please use the demo accounts provided.';
+                
+                const existingAlert = document.querySelector('.alert');
+                if (existingAlert) {
+                    existingAlert.remove();
+                }
+                
+                document.querySelector('.card-body').appendChild(errorAlert);
+                
+                // Remove error after 5 seconds
+                setTimeout(() => {
+                    errorAlert.remove();
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>

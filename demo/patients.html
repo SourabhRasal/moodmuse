@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patients - ClinicCare</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .sidebar {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            padding: 48px 0 0;
+            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+            background-color: #f8f9fa;
+        }
+        
+        .main-content {
+            margin-left: 240px;
+            padding: 20px;
+        }
+
+        @media (max-width: 767.98px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+        <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">
+            <i class="bi bi-heart-pulse me-2"></i>ClinicCare
+        </a>
+        
+        <div class="navbar-nav">
+            <div class="nav-item text-nowrap">
+                <div class="dropdown">
+                    <a class="nav-link px-3 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle me-1"></i>Dr. Sarah Johnson
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-item-text">doctor@cliniccare.com</span></li>
+                        <li><span class="dropdown-item-text small">Role: Doctor</span></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="login.html">
+                            <i class="bi bi-box-arrow-right me-2"></i>Logout
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="dashboard.html">
+                                <i class="bi bi-house-door me-2"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="patients.html">
+                                <i class="bi bi-people me-2"></i>Patients
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="analytics.html">
+                                <i class="bi bi-graph-up me-2"></i>Analytics
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <!-- Demo Header -->
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    <i class="bi bi-eye me-2"></i><strong>Demo Mode:</strong> Patient management with sample data. Try the search functionality!
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">
+                        <i class="bi bi-people me-2"></i>Patients <span class="badge bg-secondary">15</span>
+                    </h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button class="btn btn-success" onclick="showMessage('Add Patient form would open here')">
+                                <i class="bi bi-person-plus me-1"></i>Add Patient
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="showMessage('Export to CSV functionality')">
+                                <i class="bi bi-download me-1"></i>Export
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search and Filters -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" class="form-control" id="searchInput" placeholder="Search patients by name..." onkeyup="filterPatients()">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="genderFilter" onchange="filterPatients()">
+                            <option value="">All Genders</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="ageFilter" onchange="filterPatients()">
+                            <option value="">All Ages</option>
+                            <option value="0-18">0-18 years</option>
+                            <option value="19-35">19-35 years</option>
+                            <option value="36-50">36-50 years</option>
+                            <option value="51-65">51-65 years</option>
+                            <option value="65+">65+ years</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Patients Table -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="patientsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Age</th>
+                                        <th>Gender</th>
+                                        <th>Phone</th>
+                                        <th>Visits</th>
+                                        <th>Latest Visit</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="patientsTableBody">
+                                    <!-- Patient rows will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <nav aria-label="Patients pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1">Previous</a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </main>
+        </div>
+    </div>
+
+    <!-- Patient Detail Modal -->
+    <div class="modal fade" id="patientModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-person me-2"></i><span id="modalPatientName">Patient Details</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Patient Information</h6>
+                            <table class="table table-sm">
+                                <tr><td><strong>Age:</strong></td><td id="modalAge">-</td></tr>
+                                <tr><td><strong>Gender:</strong></td><td id="modalGender">-</td></tr>
+                                <tr><td><strong>Phone:</strong></td><td id="modalPhone">-</td></tr>
+                                <tr><td><strong>Doctor:</strong></td><td>Dr. Sarah Johnson</td></tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Visit Statistics</h6>
+                            <div class="text-center">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <h4 class="text-primary" id="modalVisits">0</h4>
+                                        <small>Total Visits</small>
+                                    </div>
+                                    <div class="col-6">
+                                        <h4 class="text-success" id="modalLatest">-</h4>
+                                        <small>Latest Visit</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <h6>Recent Visits</h6>
+                    <div id="modalVisitHistory">
+                        <!-- Visit history will be populated here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="showMessage('Edit patient form would open here')">
+                        <i class="bi bi-pencil me-1"></i>Edit Patient
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="showMessage('Add visit form would open here')">
+                        <i class="bi bi-plus me-1"></i>Add Visit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Demo Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="demoToast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="bi bi-info-circle text-primary me-2"></i>
+                <strong class="me-auto">Demo Action</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastMessage">Demo message here</div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sample patient data
+        const patients = [
+            {id: 1, name: "John Smith", age: 45, gender: "Male", phone: "+1 (555) 123-4567", visits: 3, latest: "Aug 1, 2024", status: "follow-up"},
+            {id: 2, name: "Mary Johnson", age: 32, gender: "Female", phone: "+1 (555) 234-5678", visits: 2, latest: "Jul 28, 2024", status: "active"},
+            {id: 3, name: "Robert Brown", age: 67, gender: "Male", phone: "+1 (555) 345-6789", visits: 5, latest: "Jul 30, 2024", status: "active"},
+            {id: 4, name: "Patricia Miller", age: 54, gender: "Female", phone: "+1 (555) 456-7890", visits: 1, latest: "Jul 25, 2024", status: "new"},
+            {id: 5, name: "James Wilson", age: 28, gender: "Male", phone: "+1 (555) 567-8901", visits: 4, latest: "Aug 2, 2024", status: "follow-up"},
+            {id: 6, name: "Jennifer Moore", age: 41, gender: "Female", phone: "+1 (555) 678-9012", visits: 2, latest: "Jul 26, 2024", status: "active"},
+            {id: 7, name: "Michael Taylor", age: 36, gender: "Male", phone: "+1 (555) 789-0123", visits: 3, latest: "Jul 29, 2024", status: "active"},
+            {id: 8, name: "Linda Anderson", age: 52, gender: "Female", phone: "+1 (555) 890-1234", visits: 6, latest: "Aug 3, 2024", status: "follow-up"},
+            {id: 9, name: "William Thomas", age: 29, gender: "Male", phone: "+1 (555) 901-2345", visits: 1, latest: "Jul 24, 2024", status: "new"},
+            {id: 10, name: "Elizabeth Jackson", age: 73, gender: "Female", phone: "+1 (555) 012-3456", visits: 8, latest: "Aug 4, 2024", status: "active"},
+            {id: 11, name: "David White", age: 38, gender: "Male", phone: "+1 (555) 123-4567", visits: 2, latest: "Jul 27, 2024", status: "active"},
+            {id: 12, name: "Barbara Harris", age: 46, gender: "Female", phone: "+1 (555) 234-5678", visits: 3, latest: "Jul 31, 2024", status: "follow-up"},
+            {id: 13, name: "Richard Martin", age: 61, gender: "Male", phone: "+1 (555) 345-6789", visits: 4, latest: "Aug 1, 2024", status: "active"},
+            {id: 14, name: "Susan Thompson", age: 35, gender: "Female", phone: "+1 (555) 456-7890", visits: 1, latest: "Jul 23, 2024", status: "new"},
+            {id: 15, name: "Joseph Garcia", age: 42, gender: "Male", phone: "+1 (555) 567-8901", visits: 5, latest: "Aug 2, 2024", status: "active"}
+        ];
+
+        let filteredPatients = [...patients];
+
+        function showMessage(message) {
+            document.getElementById('toastMessage').textContent = message;
+            const toast = new bootstrap.Toast(document.getElementById('demoToast'));
+            toast.show();
+        }
+
+        function getStatusBadge(status) {
+            const statusMap = {
+                'new': 'bg-success',
+                'active': 'bg-primary',
+                'follow-up': 'bg-warning'
+            };
+            return `<span class="badge ${statusMap[status]}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>`;
+        }
+
+        function renderPatients() {
+            const tbody = document.getElementById('patientsTableBody');
+            tbody.innerHTML = '';
+
+            filteredPatients.forEach(patient => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <strong>${patient.name}</strong>
+                        <small class="text-muted d-block">ID: ${patient.id}</small>
+                    </td>
+                    <td>${patient.age}</td>
+                    <td><span class="badge ${patient.gender === 'Male' ? 'bg-primary' : patient.gender === 'Female' ? 'bg-danger' : 'bg-secondary'}">${patient.gender}</span></td>
+                    <td>${patient.phone}</td>
+                    <td><span class="badge bg-info">${patient.visits}</span></td>
+                    <td><small class="text-muted">${patient.latest}</small></td>
+                    <td>${getStatusBadge(patient.status)}</td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" onclick="showPatientDetail(${patient.id})" title="View Details">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-outline-warning" onclick="showMessage('Edit patient ${patient.name}')" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-outline-success" onclick="showMessage('Add visit for ${patient.name}')" title="Add Visit">
+                                <i class="bi bi-plus"></i>
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="confirmDelete('${patient.name}')" title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function filterPatients() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const genderFilter = document.getElementById('genderFilter').value;
+            const ageFilter = document.getElementById('ageFilter').value;
+
+            filteredPatients = patients.filter(patient => {
+                const matchesSearch = patient.name.toLowerCase().includes(searchTerm);
+                const matchesGender = !genderFilter || patient.gender === genderFilter;
+                
+                let matchesAge = true;
+                if (ageFilter) {
+                    const age = patient.age;
+                    switch (ageFilter) {
+                        case '0-18': matchesAge = age <= 18; break;
+                        case '19-35': matchesAge = age >= 19 && age <= 35; break;
+                        case '36-50': matchesAge = age >= 36 && age <= 50; break;
+                        case '51-65': matchesAge = age >= 51 && age <= 65; break;
+                        case '65+': matchesAge = age > 65; break;
+                    }
+                }
+
+                return matchesSearch && matchesGender && matchesAge;
+            });
+
+            renderPatients();
+            
+            // Update patient count
+            document.querySelector('.badge.bg-secondary').textContent = filteredPatients.length;
+        }
+
+        function showPatientDetail(patientId) {
+            const patient = patients.find(p => p.id === patientId);
+            if (!patient) return;
+
+            document.getElementById('modalPatientName').textContent = patient.name;
+            document.getElementById('modalAge').textContent = `${patient.age} years old`;
+            document.getElementById('modalGender').textContent = patient.gender;
+            document.getElementById('modalPhone').textContent = patient.phone;
+            document.getElementById('modalVisits').textContent = patient.visits;
+            document.getElementById('modalLatest').textContent = patient.latest;
+
+            // Sample visit history
+            const visitHistory = [
+                {date: "Aug 1, 2024", symptoms: "Annual checkup", prescription: "Vitamin D supplements"},
+                {date: "May 15, 2024", symptoms: "Headache and fatigue", prescription: "Ibuprofen 400mg"},
+                {date: "Feb 10, 2024", symptoms: "Flu-like symptoms", prescription: "Rest and fluids"}
+            ];
+
+            const historyContainer = document.getElementById('modalVisitHistory');
+            historyContainer.innerHTML = '';
+
+            visitHistory.forEach(visit => {
+                const visitElement = document.createElement('div');
+                visitElement.className = 'border-start border-3 border-primary ps-3 mb-3';
+                visitElement.innerHTML = `
+                    <h6 class="mb-1">${visit.date}</h6>
+                    <p class="mb-1"><strong>Symptoms:</strong> ${visit.symptoms}</p>
+                    <p class="mb-0 text-muted"><strong>Prescription:</strong> ${visit.prescription}</p>
+                `;
+                historyContainer.appendChild(visitElement);
+            });
+
+            const modal = new bootstrap.Modal(document.getElementById('patientModal'));
+            modal.show();
+        }
+
+        function confirmDelete(patientName) {
+            if (confirm(`Are you sure you want to delete patient "${patientName}"? This action cannot be undone.`)) {
+                showMessage(`In real app, patient "${patientName}" would be deleted`);
+            }
+        }
+
+        // Initialize the page
+        renderPatients();
+
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    </script>
+</body>
+</html>

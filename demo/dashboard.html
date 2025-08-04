@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - ClinicCare</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .sidebar {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            padding: 48px 0 0;
+            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+            background-color: #f8f9fa;
+        }
+        
+        .main-content {
+            margin-left: 240px;
+            padding: 20px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card.success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .stat-card.warning {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        .stat-card.danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffa726 100%);
+        }
+
+        @media (max-width: 767.98px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+        <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">
+            <i class="bi bi-heart-pulse me-2"></i>ClinicCare
+        </a>
+        
+        <div class="navbar-nav">
+            <div class="nav-item text-nowrap">
+                <div class="dropdown">
+                    <a class="nav-link px-3 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle me-1"></i>Dr. Sarah Johnson
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-item-text">doctor@cliniccare.com</span></li>
+                        <li><span class="dropdown-item-text small">Role: Doctor</span></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="login.html">
+                            <i class="bi bi-box-arrow-right me-2"></i>Logout
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="dashboard.html">
+                                <i class="bi bi-house-door me-2"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="patients.html">
+                                <i class="bi bi-people me-2"></i>Patients
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="analytics.html">
+                                <i class="bi bi-graph-up me-2"></i>Analytics
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <!-- Demo Header -->
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    <i class="bi bi-eye me-2"></i><strong>Demo Mode:</strong> This is a demonstration of the ClinicCare dashboard with sample data.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">
+                        <i class="bi bi-house-door me-2"></i>Dashboard
+                    </h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button class="btn btn-success" onclick="showMessage('Add Patient clicked! In real app, this would open the patient form.')">
+                                <i class="bi bi-person-plus me-1"></i>Add Patient
+                            </button>
+                            <a href="analytics.html" class="btn btn-outline-primary">
+                                <i class="bi bi-graph-up me-1"></i>Analytics
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="row">
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="stat-card">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0">Total Patients</h6>
+                                    <h2 class="mb-0">15</h2>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <i class="bi bi-people" style="font-size: 2rem;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="stat-card success">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0">Total Visits</h6>
+                                    <h2 class="mb-0">42</h2>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <i class="bi bi-calendar-check" style="font-size: 2rem;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="stat-card warning">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0">Recent Visits (7 days)</h6>
+                                    <h2 class="mb-0">8</h2>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <i class="bi bi-clock-history" style="font-size: 2rem;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="stat-card danger">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0">Follow-ups Pending</h6>
+                                    <h2 class="mb-0">5</h2>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions & Recent Activity -->
+                <div class="row">
+                    <!-- Quick Actions -->
+                    <div class="col-lg-4 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="bi bi-lightning me-2"></i>Quick Actions
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-primary" onclick="showMessage('Add New Patient form would open here')">
+                                        <i class="bi bi-person-plus me-2"></i>Add New Patient
+                                    </button>
+                                    <a href="patients.html" class="btn btn-outline-primary">
+                                        <i class="bi bi-search me-2"></i>Find Patient
+                                    </a>
+                                    <a href="analytics.html" class="btn btn-outline-success">
+                                        <i class="bi bi-graph-up me-2"></i>View Analytics
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Latest Patients -->
+                    <div class="col-lg-8 mb-4">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">
+                                    <i class="bi bi-people me-2"></i>Latest Patients
+                                </h5>
+                                <a href="patients.html" class="btn btn-sm btn-outline-primary">View All</a>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Age</th>
+                                                <th>Gender</th>
+                                                <th>Visits</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <strong>John Smith</strong>
+                                                    <small class="text-muted d-block">(3 visits)</small>
+                                                </td>
+                                                <td>45</td>
+                                                <td>
+                                                    <span class="badge bg-primary">Male</span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-info">3</span>
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group btn-group-sm">
+                                                        <button class="btn btn-outline-primary btn-sm" onclick="showMessage('Patient details would open here')">
+                                                            <i class="bi bi-eye"></i>
+                                                        </button>
+                                                        <button class="btn btn-outline-success btn-sm" onclick="showMessage('Add visit form would open here')">
+                                                            <i class="bi bi-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <strong>Mary Johnson</strong>
+                                                    <small class="text-muted d-block">(2 visits)</small>
+                                                </td>
+                                                <td>32</td>
+                                                <td>
+                                                    <span class="badge bg-danger">Female</span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-info">2</span>
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group btn-group-sm">
+                                                        <button class="btn btn-outline-primary btn-sm" onclick="showMessage('Patient details would open here')">
+                                                            <i class="bi bi-eye"></i>
+                                                        </button>
+                                                        <button class="btn btn-outline-success btn-sm" onclick="showMessage('Add visit form would open here')">
+                                                            <i class="bi bi-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <strong>Robert Brown</strong>
+                                                    <small class="text-muted d-block">(5 visits)</small>
+                                                </td>
+                                                <td>67</td>
+                                                <td>
+                                                    <span class="badge bg-primary">Male</span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-info">5</span>
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group btn-group-sm">
+                                                        <button class="btn btn-outline-primary btn-sm" onclick="showMessage('Patient details would open here')">
+                                                            <i class="bi bi-eye"></i>
+                                                        </button>
+                                                        <button class="btn btn-outline-success btn-sm" onclick="showMessage('Add visit form would open here')">
+                                                            <i class="bi bi-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <strong>Patricia Miller</strong>
+                                                    <small class="text-muted d-block">(1 visit)</small>
+                                                </td>
+                                                <td>54</td>
+                                                <td>
+                                                    <span class="badge bg-danger">Female</span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-info">1</span>
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group btn-group-sm">
+                                                        <button class="btn btn-outline-primary btn-sm" onclick="showMessage('Patient details would open here')">
+                                                            <i class="bi bi-eye"></i>
+                                                        </button>
+                                                        <button class="btn btn-outline-success btn-sm" onclick="showMessage('Add visit form would open here')">
+                                                            <i class="bi bi-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <strong>James Wilson</strong>
+                                                    <small class="text-muted d-block">(4 visits)</small>
+                                                </td>
+                                                <td>28</td>
+                                                <td>
+                                                    <span class="badge bg-primary">Male</span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-info">4</span>
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group btn-group-sm">
+                                                        <button class="btn btn-outline-primary btn-sm" onclick="showMessage('Patient details would open here')">
+                                                            <i class="bi bi-eye"></i>
+                                                        </button>
+                                                        <button class="btn btn-outline-success btn-btn-sm" onclick="showMessage('Add visit form would open here')">
+                                                            <i class="bi bi-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Demo Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="demoToast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="bi bi-info-circle text-primary me-2"></i>
+                <strong class="me-auto">Demo Action</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastMessage">
+                Demo message here
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showMessage(message) {
+            document.getElementById('toastMessage').textContent = message;
+            const toast = new bootstrap.Toast(document.getElementById('demoToast'));
+            toast.show();
+        }
+
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    </script>
+</body>
+</html>
