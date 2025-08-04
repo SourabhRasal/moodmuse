@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - ClinicCare{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-person{{ '-plus' if 'Add' in title else '-gear' }} me-2"></i>{{ title }}
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('patients.list_patients') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back to Patients
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Patient Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            {{ form.name.label(class="form-label") }}
+                            {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+                            {% for error in form.name.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            {{ form.age.label(class="form-label") }}
+                            {{ form.age(class="form-control" + (" is-invalid" if form.age.errors else "")) }}
+                            {% for error in form.age.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.gender.label(class="form-label") }}
+                            {{ form.gender(class="form-select" + (" is-invalid" if form.gender.errors else "")) }}
+                            {% for error in form.gender.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ form.phone.label(class="form-label") }}
+                            {{ form.phone(class="form-control" + (" is-invalid" if form.phone.errors else ""), placeholder="e.g., +1 (555) 123-4567") }}
+                            {% for error in form.phone.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.address.label(class="form-label") }}
+                        {{ form.address(class="form-control" + (" is-invalid" if form.address.errors else ""), rows="3", placeholder="Patient's address") }}
+                        {% for error in form.address.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        {{ form.submit(class="btn btn-primary") }}
+                        <a href="{{ url_for('patients.list_patients') }}" class="btn btn-secondary">Cancel</a>
+                        {% if patient %}
+                        <a href="{{ url_for('patients.view_patient', id=patient.patient_id) }}" class="btn btn-outline-primary">
+                            <i class="bi bi-eye me-1"></i>View Patient
+                        </a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Tips</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Required Fields:</strong>
+                    <ul class="list-unstyled small mt-2">
+                        <li>• Full Name</li>
+                        <li>• Age (0-150)</li>
+                        <li>• Gender</li>
+                    </ul>
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Optional Fields:</strong>
+                    <ul class="list-unstyled small mt-2">
+                        <li>• Phone Number</li>
+                        <li>• Address</li>
+                    </ul>
+                </div>
+                
+                {% if not patient %}
+                <div class="alert alert-info small">
+                    <i class="bi bi-info-circle me-1"></i>
+                    After adding the patient, you can immediately record their first visit.
+                </div>
+                {% else %}
+                <div class="alert alert-success small">
+                    <i class="bi bi-check-circle me-1"></i>
+                    This patient has {{ patient.get_visit_count() }} visit{{ 's' if patient.get_visit_count() != 1 else '' }} recorded.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if patient %}
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Quick Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('patients.new_visit', id=patient.patient_id) }}" class="btn btn-success btn-sm">
+                        <i class="bi bi-plus me-1"></i>Add Visit
+                    </a>
+                    <a href="{{ url_for('patients.view_patient', id=patient.patient_id) }}" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-eye me-1"></i>View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

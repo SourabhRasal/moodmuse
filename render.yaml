@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: cliniccare-webapp
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python app.py"
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DB_HOST
+        fromService:
+          type: pserv
+          name: cliniccare-db
+          property: host
+      - key: DB_NAME
+        fromService:
+          type: pserv
+          name: cliniccare-db
+          property: database
+      - key: DB_USER
+        fromService:
+          type: pserv
+          name: cliniccare-db
+          property: user
+      - key: DB_PASSWORD
+        fromService:
+          type: pserv
+          name: cliniccare-db
+          property: password
+
+databases:
+  - name: cliniccare-db
+    databaseName: cliniccare
+    user: cliniccare_user

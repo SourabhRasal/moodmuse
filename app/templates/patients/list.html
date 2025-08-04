@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}Patients - ClinicCare{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-people me-2"></i>Patients
+        <span class="badge bg-secondary ms-2">{{ patients.total }}</span>
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('patients.new_patient') }}" class="btn btn-success">
+            <i class="bi bi-person-plus me-1"></i>Add Patient
+        </a>
+    </div>
+</div>
+
+<!-- Search Bar -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <form method="GET" class="d-flex">
+            <input type="text" name="search" class="form-control" placeholder="Search patients..." 
+                   value="{{ search }}" autocomplete="off">
+            <button type="submit" class="btn btn-outline-secondary ms-2">
+                <i class="bi bi-search"></i>
+            </button>
+            {% if search %}
+            <a href="{{ url_for('patients.list_patients') }}" class="btn btn-outline-danger ms-2">
+                <i class="bi bi-x"></i>
+            </a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<!-- Patients Table -->
+<div class="card">
+    <div class="card-body">
+        {% if patients.items %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Age</th>
+                        <th>Gender</th>
+                        <th>Phone</th>
+                        <th>Visits</th>
+                        <th>Latest Visit</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for patient in patients.items %}
+                    <tr>
+                        <td>
+                            <div>
+                                <strong>{{ patient.name }}</strong>
+                                {% if current_user.is_admin() %}
+                                <br><small class="text-muted">Dr. {{ patient.doctor.name }}</small>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>{{ patient.age }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'primary' if patient.gender == 'Male' else 'danger' if patient.gender == 'Female' else 'secondary' }}">
+                                {{ patient.gender }}
+                            </span>
+                        </td>
+                        <td>{{ patient.phone or '-' }}</td>
+                        <td>
+                            <span class="badge bg-info">{{ patient.get_visit_count() }}</span>
+                        </td>
+                        <td>
+                            {% set latest_visit = patient.get_latest_visit() %}
+                            {% if latest_visit %}
+                                <small class="text-muted">
+                                    {{ latest_visit.date.strftime('%b %d, %Y') }}
+                                </small>
+                            {% else %}
+                                <small class="text-muted">No visits</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('patients.view_patient', id=patient.patient_id) }}" 
+                                   class="btn btn-outline-primary" title="View Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{{ url_for('patients.edit_patient', id=patient.patient_id) }}" 
+                                   class="btn btn-outline-warning" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{{ url_for('patients.new_visit', id=patient.patient_id) }}" 
+                                   class="btn btn-outline-success" title="Add Visit">
+                                    <i class="bi bi-plus"></i>
+                                </a>
+                                <button type="button" class="btn btn-outline-danger" 
+                                        onclick="confirmDelete('{{ patient.name }}', '{{ url_for('patients.delete_patient', id=patient.patient_id) }}')"
+                                        title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if patients.pages > 1 %}
+        <nav aria-label="Patient pagination">
+            <ul class="pagination justify-content-center">
+                {% if patients.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('patients.list_patients', page=patients.prev_num, search=search) }}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for page_num in patients.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != patients.page %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('patients.list_patients', page=page_num, search=search) }}">{{ page_num }}</a>
+                        </li>
+                        {% else %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                        {% endif %}
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if patients.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('patients.list_patients', page=patients.next_num, search=search) }}">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-people" style="font-size: 4rem; color: #dee2e6;"></i>
+            <h4 class="text-muted mt-3">
+                {% if search %}
+                    No patients found for "{{ search }}"
+                {% else %}
+                    No patients found
+                {% endif %}
+            </h4>
+            <p class="text-muted">
+                {% if search %}
+                    Try adjusting your search criteria.
+                {% else %}
+                    Start by adding your first patient.
+                {% endif %}
+            </p>
+            {% if not search %}
+            <a href="{{ url_for('patients.new_patient') }}" class="btn btn-primary">
+                <i class="bi bi-person-plus me-1"></i>Add First Patient
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete patient <strong id="patientName"></strong>?</p>
+                <p class="text-danger">This action will also delete all associated visit records and cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function confirmDelete(patientName, deleteUrl) {
+    document.getElementById('patientName').textContent = patientName;
+    document.getElementById('deleteForm').action = deleteUrl;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+{% endblock %}

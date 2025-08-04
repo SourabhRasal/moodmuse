@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics - ClinicCare{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-graph-up me-2"></i>Analytics Dashboard
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Charts Grid -->
+<div class="row">
+    <!-- Visit Trends -->
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-graph-up me-2"></i>Daily Visit Trends
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="visitTrendsChart" style="height: 400px;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Gender Distribution -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-people me-2"></i>Gender Distribution
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="genderChart" style="height: 400px;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Age Groups -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-bar-chart me-2"></i>Age Group Distribution
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="ageGroupChart" style="height: 350px;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Follow-up Rates -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-arrow-repeat me-2"></i>Follow-up Requirements
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="followUpChart" style="height: 350px;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Monthly Visits -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-calendar3 me-2"></i>Monthly Visit Trends
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="monthlyVisitsChart" style="height: 400px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Indicator -->
+<div id="loadingIndicator" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading analytics...</span>
+    </div>
+    <p class="mt-2 text-muted">Loading analytics data...</p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Hide charts initially and show loading
+    const charts = document.querySelectorAll('.card');
+    charts.forEach(card => card.style.display = 'none');
+    
+    // Load all charts
+    Promise.all([
+        loadChart('visitTrendsChart', '{{ url_for("analytics.visit_trends") }}'),
+        loadChart('genderChart', '{{ url_for("analytics.gender_distribution") }}'),
+        loadChart('ageGroupChart', '{{ url_for("analytics.age_groups") }}'),
+        loadChart('followUpChart', '{{ url_for("analytics.follow_up_rates") }}'),
+        loadChart('monthlyVisitsChart', '{{ url_for("analytics.monthly_visits") }}')
+    ]).then(() => {
+        // Hide loading and show charts
+        document.getElementById('loadingIndicator').style.display = 'none';
+        charts.forEach(card => card.style.display = 'block');
+    }).catch(error => {
+        console.error('Error loading charts:', error);
+        document.getElementById('loadingIndicator').innerHTML = 
+            '<div class="alert alert-danger">Error loading analytics data. Please try again.</div>';
+    });
+});
+
+function loadChart(elementId, url) {
+    return fetch(url)
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            Plotly.newPlot(elementId, data.data, data.layout, {
+                responsive: true,
+                displayModeBar: false
+            });
+        });
+}
+</script>
+{% endblock %}

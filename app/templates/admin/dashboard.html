@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - ClinicCare{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-shield-check me-2"></i>Admin Dashboard
+        <span class="badge bg-danger ms-2">System Overview</span>
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-success">
+                <i class="bi bi-person-plus me-1"></i>Add User
+            </a>
+            <a href="{{ url_for('admin.users') }}" class="btn btn-outline-primary">
+                <i class="bi bi-people me-1"></i>Manage Users
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- System Statistics -->
+<div class="row">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stat-card">
+            <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <h6 class="mb-0">Total Users</h6>
+                    <h2 class="mb-0">{{ total_users }}</h2>
+                </div>
+                <div class="flex-shrink-0">
+                    <i class="bi bi-people" style="font-size: 2rem;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stat-card success">
+            <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <h6 class="mb-0">Active Doctors</h6>
+                    <h2 class="mb-0">{{ total_doctors }}</h2>
+                </div>
+                <div class="flex-shrink-0">
+                    <i class="bi bi-person-badge" style="font-size: 2rem;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stat-card warning">
+            <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <h6 class="mb-0">Total Patients</h6>
+                    <h2 class="mb-0">{{ total_patients }}</h2>
+                </div>
+                <div class="flex-shrink-0">
+                    <i class="bi bi-person-heart" style="font-size: 2rem;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stat-card danger">
+            <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <h6 class="mb-0">Total Visits</h6>
+                    <h2 class="mb-0">{{ total_visits }}</h2>
+                </div>
+                <div class="flex-shrink-0">
+                    <i class="bi bi-calendar-check" style="font-size: 2rem;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row">
+    <!-- Recent Users -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-person-plus me-2"></i>Recent Users
+                </h5>
+                <a href="{{ url_for('admin.users') }}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body">
+                {% if recent_users %}
+                {% for user in recent_users %}
+                <div class="d-flex align-items-center mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="rounded-circle bg-{{ 'danger' if user.role == 'admin' else 'primary' }} text-white d-flex align-items-center justify-content-center" 
+                             style="width: 40px; height: 40px;">
+                            <i class="bi bi-person"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="fw-bold">{{ user.name }}</div>
+                        <small class="text-muted">{{ user.role.title() }} • {{ user.created_at.strftime('%b %d') }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-muted">No recent users</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Patients -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-person-heart me-2"></i>Recent Patients
+                </h5>
+                <a href="{{ url_for('admin.patients') }}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body">
+                {% if recent_patients %}
+                {% for patient in recent_patients %}
+                <div class="d-flex align-items-center mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="rounded-circle bg-info text-white d-flex align-items-center justify-content-center" 
+                             style="width: 40px; height: 40px;">
+                            <i class="bi bi-person"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="fw-bold">{{ patient.name }}</div>
+                        <small class="text-muted">{{ patient.age }}y {{ patient.gender }} • Dr. {{ patient.doctor.name }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-muted">No recent patients</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Visits -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-calendar-check me-2"></i>Recent Visits
+                </h5>
+                <a href="{{ url_for('admin.visits') }}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body">
+                {% if recent_visits %}
+                {% for visit in recent_visits %}
+                <div class="d-flex align-items-center mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" 
+                             style="width: 40px; height: 40px;">
+                            <i class="bi bi-calendar"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="fw-bold">{{ visit.patient.name }}</div>
+                        <small class="text-muted">{{ visit.date.strftime('%b %d') }} • Dr. {{ visit.doctor.name }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-muted">No recent visits</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-lightning me-2"></i>Administrative Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <div class="d-grid">
+                            <a href="{{ url_for('auth.register') }}" class="btn btn-primary">
+                                <i class="bi bi-person-plus me-2"></i>Add New User
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="d-grid">
+                            <a href="{{ url_for('admin.users') }}" class="btn btn-outline-primary">
+                                <i class="bi bi-people me-2"></i>Manage Users
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="d-grid">
+                            <a href="{{ url_for('admin.patients') }}" class="btn btn-outline-info">
+                                <i class="bi bi-person-heart me-2"></i>View All Patients
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="d-grid">
+                            <a href="{{ url_for('admin.visits') }}" class="btn btn-outline-success">
+                                <i class="bi bi-calendar-check me-2"></i>View All Visits
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - ClinicCare{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-house-door me-2"></i>Dashboard
+        {% if current_user.is_admin() %}
+            <span class="badge bg-danger ms-2">Admin</span>
+        {% endif %}
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('patients.new_patient') }}" class="btn btn-success">
+                <i class="bi bi-person-plus me-1"></i>Add Patient
+            </a>
+            <a href="{{ url_for('analytics.dashboard') }}" class="btn btn-outline-primary">
+                <i class="bi bi-graph-up me-1"></i>Analytics
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stat-card">
+            <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <h6 class="mb-0">Total Patients</h6>
+                    <h2 class="mb-0">{{ total_patients }}</h2>
+                </div>
+                <div class="flex-shrink-0">
+                    <i class="bi bi-people" style="font-size: 2rem;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stat-card success">
+            <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <h6 class="mb-0">Total Visits</h6>
+                    <h2 class="mb-0">{{ total_visits }}</h2>
+                </div>
+                <div class="flex-shrink-0">
+                    <i class="bi bi-calendar-check" style="font-size: 2rem;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stat-card warning">
+            <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <h6 class="mb-0">Recent Visits (7 days)</h6>
+                    <h2 class="mb-0">{{ recent_visits }}</h2>
+                </div>
+                <div class="flex-shrink-0">
+                    <i class="bi bi-clock-history" style="font-size: 2rem;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stat-card danger">
+            <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <h6 class="mb-0">Follow-ups Pending</h6>
+                    <h2 class="mb-0">{{ follow_ups_pending }}</h2>
+                </div>
+                <div class="flex-shrink-0">
+                    <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if current_user.is_admin() and total_doctors %}
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stat-card" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #333;">
+            <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <h6 class="mb-0">Total Doctors</h6>
+                    <h2 class="mb-0">{{ total_doctors }}</h2>
+                </div>
+                <div class="flex-shrink-0">
+                    <i class="bi bi-person-badge" style="font-size: 2rem;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Quick Actions & Recent Activity -->
+<div class="row">
+    <!-- Quick Actions -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-lightning me-2"></i>Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('patients.new_patient') }}" class="btn btn-primary">
+                        <i class="bi bi-person-plus me-2"></i>Add New Patient
+                    </a>
+                    <a href="{{ url_for('patients.list_patients') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-search me-2"></i>Find Patient
+                    </a>
+                    <a href="{{ url_for('analytics.dashboard') }}" class="btn btn-outline-success">
+                        <i class="bi bi-graph-up me-2"></i>View Analytics
+                    </a>
+                    {% if current_user.is_admin() %}
+                    <hr>
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-danger">
+                        <i class="bi bi-shield-check me-2"></i>Admin Panel
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Latest Patients -->
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-people me-2"></i>Latest Patients
+                </h5>
+                <a href="{{ url_for('patients.list_patients') }}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body">
+                {% if latest_patients %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Age</th>
+                                <th>Gender</th>
+                                <th>Added</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for patient in latest_patients %}
+                            <tr>
+                                <td>
+                                    <strong>{{ patient.name }}</strong>
+                                    {% if patient.get_visit_count() > 0 %}
+                                        <small class="text-muted">({{ patient.get_visit_count() }} visits)</small>
+                                    {% endif %}
+                                </td>
+                                <td>{{ patient.age }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'primary' if patient.gender == 'Male' else 'danger' if patient.gender == 'Female' else 'secondary' }}">
+                                        {{ patient.gender }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <small class="text-muted">
+                                        {{ patient.created_at.strftime('%b %d, %Y') }}
+                                    </small>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('patients.view_patient', id=patient.patient_id) }}" 
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('patients.new_visit', id=patient.patient_id) }}" 
+                                           class="btn btn-outline-success btn-sm">
+                                            <i class="bi bi-plus"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-people" style="font-size: 3rem; color: #dee2e6;"></i>
+                    <p class="text-muted mt-2">No patients found</p>
+                    <a href="{{ url_for('patients.new_patient') }}" class="btn btn-primary">
+                        <i class="bi bi-person-plus me-1"></i>Add First Patient
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Welcome Message for New Users -->
+{% if total_patients == 0 %}
+<div class="row">
+    <div class="col-12">
+        <div class="alert alert-info" role="alert">
+            <h4 class="alert-heading">
+                <i class="bi bi-info-circle me-2"></i>Welcome to ClinicCare!
+            </h4>
+            <p>Get started by adding your first patient and recording their visit details. Use the analytics dashboard to track your practice's growth and patient trends.</p>
+            <hr>
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('patients.new_patient') }}" class="btn btn-primary">
+                    <i class="bi bi-person-plus me-1"></i>Add Your First Patient
+                </a>
+                <a href="{{ url_for('analytics.dashboard') }}" class="btn btn-outline-primary">
+                    <i class="bi bi-graph-up me-1"></i>Explore Analytics
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block title %}{{ patient.name }} - ClinicCare{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-person me-2"></i>{{ patient.name }}
+        <span class="badge bg-{{ 'primary' if patient.gender == 'Male' else 'danger' if patient.gender == 'Female' else 'secondary' }} ms-2">
+            {{ patient.gender }}
+        </span>
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('patients.new_visit', id=patient.patient_id) }}" class="btn btn-success">
+                <i class="bi bi-plus me-1"></i>Add Visit
+            </a>
+            <a href="{{ url_for('patients.edit_patient', id=patient.patient_id) }}" class="btn btn-outline-warning">
+                <i class="bi bi-pencil me-1"></i>Edit
+            </a>
+        </div>
+        <a href="{{ url_for('patients.list_patients') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back to Patients
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Patient Information -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-person-badge me-2"></i>Patient Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-4"><strong>Age:</strong></div>
+                    <div class="col-sm-8">{{ patient.age }} years old</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4"><strong>Gender:</strong></div>
+                    <div class="col-sm-8">{{ patient.gender }}</div>
+                </div>
+                {% if patient.phone %}
+                <div class="row mb-3">
+                    <div class="col-sm-4"><strong>Phone:</strong></div>
+                    <div class="col-sm-8">{{ patient.phone }}</div>
+                </div>
+                {% endif %}
+                {% if patient.address %}
+                <div class="row mb-3">
+                    <div class="col-sm-4"><strong>Address:</strong></div>
+                    <div class="col-sm-8">{{ patient.address }}</div>
+                </div>
+                {% endif %}
+                <div class="row mb-3">
+                    <div class="col-sm-4"><strong>Doctor:</strong></div>
+                    <div class="col-sm-8">{{ patient.doctor.name }}</div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4"><strong>Registered:</strong></div>
+                    <div class="col-sm-8">{{ patient.created_at.strftime('%B %d, %Y') }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Patient Statistics -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-graph-up me-2"></i>Visit Statistics
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6 border-end">
+                        <h4 class="text-primary mb-0">{{ visits.total }}</h4>
+                        <small class="text-muted">Total Visits</small>
+                    </div>
+                    <div class="col-6">
+                        <h4 class="text-success mb-0">
+                            {% set latest = patient.get_latest_visit() %}
+                            {{ (latest.date.strftime('%b %d') if latest else 'Never') }}
+                        </h4>
+                        <small class="text-muted">Latest Visit</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Visit History -->
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-calendar-check me-2"></i>Visit History
+                    <span class="badge bg-secondary ms-2">{{ visits.total }}</span>
+                </h5>
+                <a href="{{ url_for('patients.new_visit', id=patient.patient_id) }}" class="btn btn-sm btn-success">
+                    <i class="bi bi-plus me-1"></i>Add Visit
+                </a>
+            </div>
+            <div class="card-body">
+                {% if visits.items %}
+                <div class="timeline">
+                    {% for visit in visits.items %}
+                    <div class="card mb-3 border-start border-3 border-{{ 'warning' if visit.follow_up_required else 'success' }}">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="card-title mb-0">
+                                    {{ visit.date.strftime('%B %d, %Y at %I:%M %p') }}
+                                    {% if visit.follow_up_required %}
+                                    <span class="badge bg-warning text-dark ms-2">Follow-up Required</span>
+                                    {% endif %}
+                                </h6>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ url_for('patients.edit_visit', visit_id=visit.visit_id) }}" 
+                                       class="btn btn-outline-warning btn-sm" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" 
+                                            onclick="confirmDeleteVisit('{{ visit.date.strftime('%B %d, %Y') }}', '{{ url_for('patients.delete_visit', visit_id=visit.visit_id) }}')"
+                                            title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Symptoms:</strong>
+                                    <p class="text-muted small mb-2">{{ visit.symptoms }}</p>
+                                </div>
+                                {% if visit.prescription %}
+                                <div class="col-md-6">
+                                    <strong>Prescription:</strong>
+                                    <p class="text-muted small mb-2">{{ visit.prescription }}</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            {% if visit.follow_up_required and visit.follow_up_date %}
+                            <div class="alert alert-warning small mb-2">
+                                <i class="bi bi-calendar-event me-1"></i>
+                                Follow-up scheduled for {{ visit.follow_up_date.strftime('%B %d, %Y') }}
+                            </div>
+                            {% endif %}
+                            
+                            {% if visit.notes %}
+                            <div class="mt-2">
+                                <strong>Notes:</strong>
+                                <p class="text-muted small mb-0">{{ visit.notes }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if visits.pages > 1 %}
+                <nav aria-label="Visit pagination">
+                    <ul class="pagination justify-content-center">
+                        {% if visits.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('patients.view_patient', id=patient.patient_id, page=visits.prev_num) }}">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for page_num in visits.iter_pages() %}
+                            {% if page_num %}
+                                {% if page_num != visits.page %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('patients.view_patient', id=patient.patient_id, page=page_num) }}">{{ page_num }}</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_num }}</span>
+                                </li>
+                                {% endif %}
+                            {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if visits.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('patients.view_patient', id=patient.patient_id, page=visits.next_num) }}">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+                
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-calendar-x" style="font-size: 4rem; color: #dee2e6;"></i>
+                    <h4 class="text-muted mt-3">No visits recorded</h4>
+                    <p class="text-muted">Start by recording the patient's first visit.</p>
+                    <a href="{{ url_for('patients.new_visit', id=patient.patient_id) }}" class="btn btn-success">
+                        <i class="bi bi-plus me-1"></i>Add First Visit
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Visit Confirmation Modal -->
+<div class="modal fade" id="deleteVisitModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the visit from <strong id="visitDate"></strong>?</p>
+                <p class="text-danger">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteVisitForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function confirmDeleteVisit(visitDate, deleteUrl) {
+    document.getElementById('visitDate').textContent = visitDate;
+    document.getElementById('deleteVisitForm').action = deleteUrl;
+    new bootstrap.Modal(document.getElementById('deleteVisitModal')).show();
+}
+</script>
+{% endblock %}

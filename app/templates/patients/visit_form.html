@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - {{ patient.name }} - ClinicCare{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-calendar-plus me-2"></i>{{ title }}
+        <span class="badge bg-primary ms-2">{{ patient.name }}</span>
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('patients.view_patient', id=patient.patient_id) }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back to Patient
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Visit Details</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.date.label(class="form-label") }}
+                            {{ form.date(class="form-control" + (" is-invalid" if form.date.errors else ""), 
+                                       value=(visit.date.strftime('%Y-%m-%dT%H:%M') if visit else '')) }}
+                            {% for error in form.date.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                            <div class="form-text">Use format: YYYY-MM-DD HH:MM</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.symptoms.label(class="form-label") }}
+                        {{ form.symptoms(class="form-control" + (" is-invalid" if form.symptoms.errors else ""), 
+                                       rows="4", placeholder="Describe the patient's symptoms and complaints...") }}
+                        {% for error in form.symptoms.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.prescription.label(class="form-label") }}
+                        {{ form.prescription(class="form-control" + (" is-invalid" if form.prescription.errors else ""), 
+                                           rows="3", placeholder="Prescribed medications and dosages...") }}
+                        {% for error in form.prescription.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check">
+                                {{ form.follow_up_required(class="form-check-input", onchange="toggleFollowUpDate()") }}
+                                {{ form.follow_up_required.label(class="form-check-label") }}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3" id="followUpDateContainer" style="display: none;">
+                            {{ form.follow_up_date.label(class="form-label") }}
+                            {{ form.follow_up_date(class="form-control" + (" is-invalid" if form.follow_up_date.errors else "")) }}
+                            {% for error in form.follow_up_date.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.notes.label(class="form-label") }}
+                        {{ form.notes(class="form-control" + (" is-invalid" if form.notes.errors else ""), 
+                                    rows="3", placeholder="Additional notes and observations...") }}
+                        {% for error in form.notes.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        {{ form.submit(class="btn btn-primary") }}
+                        <a href="{{ url_for('patients.view_patient', id=patient.patient_id) }}" class="btn btn-secondary">Cancel</a>
+                        {% if visit %}
+                        <a href="{{ url_for('patients.view_patient', id=patient.patient_id) }}" class="btn btn-outline-primary">
+                            <i class="bi bi-eye me-1"></i>View Patient
+                        </a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <!-- Patient Info -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-person me-2"></i>Patient Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-2">
+                    <strong>{{ patient.name }}</strong>
+                </div>
+                <div class="mb-2">
+                    <small class="text-muted">
+                        {{ patient.age }} years old, {{ patient.gender }}
+                    </small>
+                </div>
+                {% if patient.phone %}
+                <div class="mb-2">
+                    <small class="text-muted">
+                        <i class="bi bi-telephone me-1"></i>{{ patient.phone }}
+                    </small>
+                </div>
+                {% endif %}
+                <div>
+                    <small class="text-muted">
+                        Previous visits: {{ patient.get_visit_count() }}
+                    </small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Latest Visit (if editing) -->
+        {% if visit %}
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-clock-history me-2"></i>Original Visit Info
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-2">
+                    <strong>Date:</strong><br>
+                    <small>{{ visit.date.strftime('%B %d, %Y at %I:%M %p') }}</small>
+                </div>
+                <div>
+                    <strong>Status:</strong><br>
+                    {% if visit.follow_up_required %}
+                        <span class="badge bg-warning text-dark">Follow-up Required</span>
+                    {% else %}
+                        <span class="badge bg-success">Complete</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Tips -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Tips</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Required Fields:</strong>
+                    <ul class="list-unstyled small mt-2">
+                        <li>• Visit Date & Time</li>
+                        <li>• Symptoms Description</li>
+                    </ul>
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Best Practices:</strong>
+                    <ul class="list-unstyled small mt-2">
+                        <li>• Be specific with symptoms</li>
+                        <li>• Include dosage in prescriptions</li>
+                        <li>• Set follow-up dates when needed</li>
+                        <li>• Use notes for additional observations</li>
+                    </ul>
+                </div>
+                
+                {% if not visit %}
+                <div class="alert alert-info small">
+                    <i class="bi bi-info-circle me-1"></i>
+                    After saving, you can add another visit or return to the patient's record.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleFollowUpDate() {
+    const checkbox = document.querySelector('#follow_up_required');
+    const container = document.getElementById('followUpDateContainer');
+    
+    if (checkbox.checked) {
+        container.style.display = 'block';
+        // Set default follow-up date to 1 week from today
+        const followUpInput = document.querySelector('#follow_up_date');
+        if (!followUpInput.value) {
+            const nextWeek = new Date();
+            nextWeek.setDate(nextWeek.getDate() + 7);
+            followUpInput.value = nextWeek.toISOString().split('T')[0];
+        }
+    } else {
+        container.style.display = 'none';
+    }
+}
+
+// Set current date/time as default for new visits
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.querySelector('#date');
+    if (!dateInput.value) {
+        const now = new Date();
+        const localISOTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+        dateInput.value = localISOTime;
+    }
+    
+    // Check initial state of follow-up checkbox
+    toggleFollowUpDate();
+});
+</script>
+{% endblock %}
